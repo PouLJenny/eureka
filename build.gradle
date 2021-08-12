@@ -1,5 +1,10 @@
 buildscript {
-    repositories { jcenter() }
+    repositories {
+        mavenLocal()
+        maven{ url 'http://maven.aliyun.com/nexus/content/groups/public/'}
+        mavenCentral()
+        jcenter()
+    }
 
     dependencies {
         classpath 'com.netflix.nebula:gradle-extra-configurations-plugin:2.2.+'
