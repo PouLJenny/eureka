@@ -109,7 +109,7 @@ public class EurekaClientServerRestIntegrationTest {
     }
 
     /**
-     * 测试注册
+     * 测试客户端注册是否成功
      * @throws Exception
      */
     @Test
@@ -120,6 +120,11 @@ public class EurekaClientServerRestIntegrationTest {
         assertThat(httpResponse.getStatusCode(), is(equalTo(204)));
     }
 
+
+    /**
+     * 测试心跳 续约
+     * @throws Exception
+     */
     @Test
     public void testHeartbeat() throws Exception {
         // Register first
@@ -253,9 +258,9 @@ public class EurekaClientServerRestIntegrationTest {
 
         server = new Server(8080);
 
-        WebAppContext webAppCtx = new WebAppContext(new File("./eureka-server/src/main/webapp").getAbsolutePath(), "/");
-        webAppCtx.setDescriptor(new File("./eureka-server/src/main/webapp/WEB-INF/web.xml").getAbsolutePath());
-        webAppCtx.setResourceBase(new File("./eureka-server/src/main/resources").getAbsolutePath());
+        WebAppContext webAppCtx = new WebAppContext(new File("src/main/webapp").getAbsolutePath(), "/");
+        webAppCtx.setDescriptor(new File("src/main/webapp/WEB-INF/web.xml").getAbsolutePath());
+        webAppCtx.setResourceBase(new File("src/main/resources").getAbsolutePath());
         webAppCtx.setClassLoader(Thread.currentThread().getContextClassLoader());
         server.setHandler(webAppCtx);
         server.start();

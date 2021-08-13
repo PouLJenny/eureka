@@ -52,7 +52,7 @@ allprojects {
 }
 
 subprojects {
-    apply plugin: 'nebula.netflixoss'
+//    apply plugin: 'nebula.netflixoss'
     apply plugin: 'java'
 
     group = "com.netflix.${githubProjectName}"
