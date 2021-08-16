@@ -213,7 +213,7 @@ public class EurekaBootStrap implements ServletContextListener {
 
         // 初始化 EurekaServerContextHolder
         EurekaServerContextHolder.initialize(serverContext);
-        // 初始化 EurekaServerContext
+        // 初始化 EurekaServerContext 更新节点信息
         serverContext.initialize();
         logger.info("Initialized server context");
 
