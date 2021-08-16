@@ -478,7 +478,7 @@ public interface EurekaClientConfig {
     int getCacheRefreshExecutorThreadPoolSize();
 
     /**
-     * Cache refresh executor exponential back off related property.
+     * Cache refresh executor exponential(指数) back off related property.
      * It is a maximum multiplier value for retry delay, in case where a sequence of timeouts
      * occurred.
      *

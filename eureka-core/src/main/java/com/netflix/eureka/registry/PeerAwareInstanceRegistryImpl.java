@@ -77,6 +77,12 @@ import javax.inject.Singleton;
  * {@link com.netflix.eureka.EurekaServerConfig#getWaitTimeInMsWhenSyncEmpty()}.
  * </p>
  *
+ *
+ * <p>
+ * 如果说当前eureka server，在一定周期内，获取心跳的比例低于一定的阈值的话，比如一共有20个服务实例，
+ * 在15分钟之内，就10个服务实例发送了心跳，eureka server就自动认为自己的网络出了故障，不会将那10个
+ * 服务实例给摘除，而是让自己进入一个自我保护的模式： 自己不再摘除任务的服务实例
+ * </p>
  * <p>
  * One important thing to note about <em>renewals</em>.If the renewal drops more
  * than the specified threshold as specified in
