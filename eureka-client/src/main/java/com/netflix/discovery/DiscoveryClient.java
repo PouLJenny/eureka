@@ -394,7 +394,7 @@ public class DiscoveryClient implements EurekaClient {
                             .build()
             );  // use direct handoff
 
-            // 网络传输
+            // 网络传输组件
             eurekaTransport = new EurekaTransport();
             scheduleServerEndpointTask(eurekaTransport, args);
 
@@ -802,7 +802,7 @@ public class DiscoveryClient implements EurekaClient {
     }
 
     /**
-     * Register with the eureka service by making the appropriate REST call.
+     * Register with the eureka service by making the appropriate(合适的) REST call.
      */
     boolean register() throws Throwable {
         logger.info(PREFIX + appPathIdentifier + ": registering service...");
