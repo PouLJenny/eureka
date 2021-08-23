@@ -30,12 +30,14 @@ class InstanceInfoReplicator implements Runnable {
     private final DiscoveryClient discoveryClient;
     private final InstanceInfo instanceInfo;
 
+    // 默认30s
     private final int replicationIntervalSeconds;
     private final ScheduledExecutorService scheduler;
     private final AtomicReference<Future> scheduledPeriodicRef;
 
     private final AtomicBoolean started;
     private final RateLimiter rateLimiter;
+    // 默认2
     private final int burstSize;
     private final int allowedRatePerMinute;
 
@@ -61,6 +63,7 @@ class InstanceInfoReplicator implements Runnable {
 
     public void start(int initialDelayMs) {
         if (started.compareAndSet(false, true)) {
+            // 设置isDirty 为了刚开始启动的时候进行服务注册
             instanceInfo.setIsDirty();  // for initial register
             Future next = scheduler.schedule(this, initialDelayMs, TimeUnit.SECONDS);
             scheduledPeriodicRef.set(next);

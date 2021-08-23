@@ -226,8 +226,9 @@ public class ApplicationInfoManager {
         if (leaseInfo == null) {
             return;
         }
-        int currentLeaseDuration = config.getLeaseExpirationDurationInSeconds();
-        int currentLeaseRenewal = config.getLeaseRenewalIntervalInSeconds();
+        //读取 instanceInfo 的配置信息
+        int currentLeaseDuration = config.getLeaseExpirationDurationInSeconds(); // 默认90s
+        int currentLeaseRenewal = config.getLeaseRenewalIntervalInSeconds(); // 默认30秒
         if (leaseInfo.getDurationInSecs() != currentLeaseDuration || leaseInfo.getRenewalIntervalInSecs() != currentLeaseRenewal) {
             LeaseInfo newLeaseInfo = LeaseInfo.Builder.newBuilder()
                     .setRenewalIntervalInSecs(currentLeaseRenewal)

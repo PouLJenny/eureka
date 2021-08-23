@@ -77,7 +77,7 @@ public abstract class AbstractInstanceRegistry implements InstanceRegistry {
 
     private static final String[] EMPTY_STR_ARRAY = new String[0];
     private final ConcurrentHashMap<String, Map<String, Lease<InstanceInfo>>> registry
-            = new ConcurrentHashMap<String, Map<String, Lease<InstanceInfo>>>();
+            = new ConcurrentHashMap<String, Map<String, Lease<InstanceInfo>>>();// important 实际注册表数据结构
     protected Map<String, RemoteRegionRegistry> regionNameVSRemoteRegistry = new HashMap<String, RemoteRegionRegistry>();
     protected final ConcurrentMap<String, InstanceStatus> overriddenInstanceStatusMap = CacheBuilder
             .newBuilder().initialCapacity(500)
@@ -234,6 +234,7 @@ public abstract class AbstractInstanceRegistry implements InstanceRegistry {
             if (existingLease != null) {
                 lease.setServiceUpTimestamp(existingLease.getServiceUpTimestamp());
             }
+            // 将服务的实例信息放入到注册表的数据结构中去
             gMap.put(registrant.getId(), lease);
             synchronized (recentRegisteredQueue) {
                 recentRegisteredQueue.add(new Pair<Long, String>(

@@ -448,7 +448,7 @@ public interface EurekaClientConfig {
     /**
      * Indicates whether the client is only interested in the registry information for a single VIP.
      *
-     * @return the address of the VIP (name:port).
+     * @return the address of the VIP (name:port). 虚拟ip地址
      * <code>null</code> if single VIP interest is not present.
      */
     @Nullable

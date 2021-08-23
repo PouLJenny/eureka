@@ -145,6 +145,7 @@ public class DiscoveryClient implements EurekaClient {
     private final Provider<HealthCheckHandler> healthCheckHandlerProvider;
     private final Provider<HealthCheckCallback> healthCheckCallbackProvider;
     private final PreRegistrationHandler preRegistrationHandler;
+    // 从eureka-server拉取到注册表信息，本地缓存的数据结构
     private final AtomicReference<Applications> localRegionApps = new AtomicReference<Applications>();
     private final Lock fetchRegistryUpdateLock = new ReentrantLock();
     // monotonically increasing generation counter to ensure stale threads do not reset registry to an older version
@@ -412,6 +413,7 @@ public class DiscoveryClient implements EurekaClient {
             throw new RuntimeException("Failed to initialize DiscoveryClient!", e);
         }
 
+        // 抓取eureka-server的注册表信息到本地
         if (clientConfig.shouldFetchRegistry() && !fetchRegistry(false)) {
             fetchRegistryFromBackup();
         }
@@ -1038,7 +1040,7 @@ public class DiscoveryClient implements EurekaClient {
         if (apps == null) {
             logger.error("The application is null for some reason. Not storing this information");
         } else if (fetchRegistryGeneration.compareAndSet(currentUpdateGeneration, currentUpdateGeneration + 1)) {
-            localRegionApps.set(this.filterAndShuffle(apps));
+            localRegionApps.set(this.filterAndShuffle(apps)); // 过滤和清洗拉取到的注册表信息
             logger.debug("Got full registry with apps hashcode {}", apps.getAppsHashCode());
         } else {
             logger.warn("Not updating applications as another thread is updating it already");
@@ -1278,7 +1280,7 @@ public class DiscoveryClient implements EurekaClient {
             instanceInfoReplicator = new InstanceInfoReplicator(
                     this,
                     instanceInfo,
-                    clientConfig.getInstanceInfoReplicationIntervalSeconds(),
+                    clientConfig.getInstanceInfoReplicationIntervalSeconds(), // 默认30s
                     2); // burstSize
 
             statusChangeListener = new ApplicationInfoManager.StatusChangeListener() {
@@ -1304,7 +1306,7 @@ public class DiscoveryClient implements EurekaClient {
                 applicationInfoManager.registerStatusChangeListener(statusChangeListener);
             }
 
-            instanceInfoReplicator.start(clientConfig.getInitialInstanceInfoReplicationIntervalSeconds());
+            instanceInfoReplicator.start(clientConfig.getInitialInstanceInfoReplicationIntervalSeconds());// 默认40s
         } else {
             logger.info("Not registering with Eureka server per configuration");
         }
@@ -1372,7 +1374,9 @@ public class DiscoveryClient implements EurekaClient {
      * isDirty flag on the instanceInfo is set to true
      */
     void refreshInstanceInfo() {
+        //
         applicationInfoManager.refreshDataCenterInfoIfRequired();
+        // 刷新实例的配置信息
         applicationInfoManager.refreshLeaseInfoIfRequired();
 
         InstanceStatus status;

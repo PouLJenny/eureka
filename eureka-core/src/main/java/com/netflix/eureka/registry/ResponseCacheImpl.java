@@ -112,8 +112,9 @@ public class ResponseCacheImpl implements ResponseCache {
                 }
             });
 
+    // 只读缓存
     private final ConcurrentMap<Key, Value> readOnlyCacheMap = new ConcurrentHashMap<Key, Value>();
-
+    // 读写缓存
     private final LoadingCache<Key, Value> readWriteCacheMap;
     private final boolean shouldUseReadOnlyResponseCache;
     private final AbstractInstanceRegistry registry;
@@ -121,14 +122,16 @@ public class ResponseCacheImpl implements ResponseCache {
     private final ServerCodecs serverCodecs;
 
     ResponseCacheImpl(EurekaServerConfig serverConfig, ServerCodecs serverCodecs, AbstractInstanceRegistry registry) {
+        // 默认 读写缓存 + 只读缓存的 二级缓存机制
         this.serverConfig = serverConfig;
         this.serverCodecs = serverCodecs;
-        this.shouldUseReadOnlyResponseCache = serverConfig.shouldUseReadOnlyResponseCache();
+        this.shouldUseReadOnlyResponseCache = serverConfig.shouldUseReadOnlyResponseCache(); // 默认是true 可以关掉
         this.registry = registry;
 
-        long responseCacheUpdateIntervalMs = serverConfig.getResponseCacheUpdateIntervalMs();
+        long responseCacheUpdateIntervalMs = serverConfig.getResponseCacheUpdateIntervalMs();// 只读缓存刷新时间 默认30s
         this.readWriteCacheMap =
                 CacheBuilder.newBuilder().initialCapacity(1000)
+                        // 读写缓存的超时时间 默认180s（3分钟）
                         .expireAfterWrite(serverConfig.getResponseCacheAutoExpirationInSeconds(), TimeUnit.SECONDS)
                         .removalListener(new RemovalListener<Key, Value>() {
                             @Override
