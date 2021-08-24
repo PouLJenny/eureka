@@ -153,6 +153,7 @@ public class PeerAwareInstanceRegistryImpl extends AbstractInstanceRegistry impl
 
     @Override
     public void init(PeerEurekaNodes peerEurekaNodes) throws Exception {
+        // 开启最近1分钟的心跳次数计数器
         this.numberOfReplicationsLastMin.start();
         this.peerEurekaNodes = peerEurekaNodes;
         initializedResponseCache();
@@ -191,13 +192,14 @@ public class PeerAwareInstanceRegistryImpl extends AbstractInstanceRegistry impl
      * The renewal threshold would be used to determine if the renewals drop
      * dramatically because of network partition and to protect expiring too
      * many instances at a time.
-     *
+     * 定时更新每分钟期望的心跳次数
      */
     private void scheduleRenewalThresholdUpdateTask() {
         timer.schedule(new TimerTask() {
                            @Override
                            public void run() {
                                updateRenewalThreshold();
+                               // 默认15分钟
                            }
                        }, serverConfig.getRenewalThresholdUpdateIntervalMs(),
                 serverConfig.getRenewalThresholdUpdateIntervalMs());
@@ -212,10 +214,11 @@ public class PeerAwareInstanceRegistryImpl extends AbstractInstanceRegistry impl
     public int syncUp() {
         // Copy entire entry from neighboring DS node
         int count = 0;
-
+        // 默认重试5次
         for (int i = 0; ((i < serverConfig.getRegistrySyncRetries()) && (count == 0)); i++) {
             if (i > 0) {
                 try {
+                    // 默认30s
                     Thread.sleep(serverConfig.getRegistrySyncRetryWaitMs());
                 } catch (InterruptedException e) {
                     logger.warn("Interrupted during registry transfer..");
@@ -242,6 +245,7 @@ public class PeerAwareInstanceRegistryImpl extends AbstractInstanceRegistry impl
     @Override
     public void openForTraffic(ApplicationInfoManager applicationInfoManager, int count) {
         // Renewals happen every 30 seconds and for a minute it should be a factor of 2.
+        // 每分钟期望的心跳次数
         this.expectedNumberOfRenewsPerMin = count * 2;
         this.numberOfRenewsPerMinThreshold =
                 (int) (this.expectedNumberOfRenewsPerMin * serverConfig.getRenewalPercentThreshold());
@@ -488,6 +492,7 @@ public class PeerAwareInstanceRegistryImpl extends AbstractInstanceRegistry impl
             // The self preservation mode is disabled, hence allowing the instances to expire.
             return true;
         }
+        // 自我保护机制
         return numberOfRenewsPerMinThreshold > 0 && getNumOfRenewsInLastMin() > numberOfRenewsPerMinThreshold;
     }
 

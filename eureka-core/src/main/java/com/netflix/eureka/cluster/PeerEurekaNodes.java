@@ -100,6 +100,7 @@ public class PeerEurekaNodes {
             };
             taskExecutor.scheduleWithFixedDelay(
                     peersUpdateTask,
+                    // 默认10分钟执行一次
                     serverConfig.getPeerEurekaNodesUpdateIntervalMs(),
                     serverConfig.getPeerEurekaNodesUpdateIntervalMs(),
                     TimeUnit.MILLISECONDS

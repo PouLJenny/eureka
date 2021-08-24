@@ -377,6 +377,7 @@ public class DiscoveryClient implements EurekaClient {
             // 线程池参数keepAliveTime=0是指超过corpSize的线程空闲立即结束
             // 心跳续约的线程池
             heartbeatExecutor = new ThreadPoolExecutor(
+                                    // 默认5
                     1, clientConfig.getHeartbeatExecutorThreadPoolSize(), 0, TimeUnit.SECONDS,
                     new SynchronousQueue<Runnable>(),
                     new ThreadFactoryBuilder()
@@ -948,6 +949,7 @@ public class DiscoveryClient implements EurekaClient {
             } else {
                 getAndUpdateDelta(applications);
             }
+            // 一致性hashcode
             applications.setAppsHashCode(applications.getReconcileHashCode());
             logTotalInstances();
         } catch (Throwable e) {
@@ -1243,6 +1245,7 @@ public class DiscoveryClient implements EurekaClient {
     private void initScheduledTasks() {
         if (clientConfig.shouldFetchRegistry()) {
             // registry cache refresh timer
+            // 定时抓取server中的注册表信息 默认30s
             int registryFetchIntervalSeconds = clientConfig.getRegistryFetchIntervalSeconds();
             int expBackOffBound = clientConfig.getCacheRefreshExecutorExponentialBackOffBound();
             scheduler.schedule(
@@ -1259,6 +1262,7 @@ public class DiscoveryClient implements EurekaClient {
         }
 
         if (clientConfig.shouldRegisterWithEureka()) {
+            // 默认30s
             int renewalIntervalInSecs = instanceInfo.getLeaseInfo().getRenewalIntervalInSecs();
             int expBackOffBound = clientConfig.getHeartbeatExecutorExponentialBackOffBound();
             logger.info("Starting heartbeat executor: " + "renew interval is: " + renewalIntervalInSecs);

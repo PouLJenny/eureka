@@ -50,7 +50,7 @@ public class Lease<T> {
         holder = r;
         registrationTimestamp = System.currentTimeMillis();
         lastUpdateTimestamp = registrationTimestamp;
-        duration = (durationInSecs * 1000);
+        duration = (durationInSecs * 1000); // 默认90秒
 
     }
 

@@ -119,10 +119,10 @@ public abstract class AbstractInstanceRegistry implements InstanceRegistry {
         this.recentCanceledQueue = new CircularQueue<Pair<Long, String>>(1000);
         this.recentRegisteredQueue = new CircularQueue<Pair<Long, String>>(1000);
 
-        this.renewsLastMin = new MeasuredRate(1000 * 60 * 1);
+        this.renewsLastMin = new MeasuredRate(1000 * 60 * 1);// 1分钟
 
         this.deltaRetentionTimer.schedule(getDeltaRetentionTask(),
-                serverConfig.getDeltaRetentionTimerIntervalInMs(),
+                serverConfig.getDeltaRetentionTimerIntervalInMs(), // 默认30秒
                 serverConfig.getDeltaRetentionTimerIntervalInMs());
     }
 
@@ -307,7 +307,7 @@ public abstract class AbstractInstanceRegistry implements InstanceRegistry {
             Map<String, Lease<InstanceInfo>> gMap = registry.get(appName);
             Lease<InstanceInfo> leaseToCancel = null;
             if (gMap != null) {
-                leaseToCancel = gMap.remove(id);
+                leaseToCancel = gMap.remove(id);// 从注册表中移除
             }
             synchronized (recentCanceledQueue) {
                 recentCanceledQueue.add(new Pair<Long, String>(System.currentTimeMillis(), appName + "(" + id + ")"));
@@ -383,6 +383,7 @@ public abstract class AbstractInstanceRegistry implements InstanceRegistry {
                     instanceInfo.setStatusWithoutDirty(overriddenInstanceStatus);
                 }
             }
+            // 心跳数加1
             renewsLastMin.increment();
             leaseToRenew.renew();
             return true;
@@ -585,6 +586,7 @@ public abstract class AbstractInstanceRegistry implements InstanceRegistry {
         evict(0l);
     }
 
+    // 驱逐 自动下线长时间没有心跳的实例
     public void evict(long additionalLeaseMs) {
         logger.debug("Running the evict task");
 
@@ -602,6 +604,7 @@ public abstract class AbstractInstanceRegistry implements InstanceRegistry {
             if (leaseMap != null) {
                 for (Entry<String, Lease<InstanceInfo>> leaseEntry : leaseMap.entrySet()) {
                     Lease<InstanceInfo> lease = leaseEntry.getValue();
+                    // 如果实例上一次心跳时间距离现在大于180秒才算
                     if (lease.isExpired(additionalLeaseMs) && lease.getHolder() != null) {
                         expiredLeases.add(lease);
                     }
@@ -1229,7 +1232,7 @@ public abstract class AbstractInstanceRegistry implements InstanceRegistry {
         evictionTaskRef.set(new EvictionTask());
         evictionTimer.schedule(evictionTaskRef.get(),
                 serverConfig.getEvictionIntervalTimerInMs(),
-                serverConfig.getEvictionIntervalTimerInMs());
+                serverConfig.getEvictionIntervalTimerInMs()); // 默认1分钟执行一次
     }
 
     /**
@@ -1275,8 +1278,10 @@ public abstract class AbstractInstanceRegistry implements InstanceRegistry {
                 return 0l;
             }
 
+            // 正常应该是1分钟 如果大于1分钟说明任务没有准时触发，有可能是GC或者是宿主机的时钟有问题
             long elapsedMs = TimeUnit.NANOSECONDS.toMillis(currNanos - lastNanos);
             long compensationTime = elapsedMs - serverConfig.getEvictionIntervalTimerInMs();
+            // 返回补偿时间
             return compensationTime <= 0l ? 0l : compensationTime;
         }
 
@@ -1332,7 +1337,7 @@ public abstract class AbstractInstanceRegistry implements InstanceRegistry {
             public void run() {
                 Iterator<RecentlyChangedItem> it = recentlyChangedQueue.iterator();
                 while (it.hasNext()) {
-                    if (it.next().getLastUpdateTime() <
+                    if (it.next().getLastUpdateTime() < // 默认3分钟
                             System.currentTimeMillis() - serverConfig.getRetentionTimeInMSInDeltaQueue()) {
                         it.remove();
                     } else {
